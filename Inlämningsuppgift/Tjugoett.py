@@ -25,9 +25,9 @@ while True:
         spelareHand = []
         datorHand = []
 
-        # Spelaren ska ange sin insats
+        # Spelaren ska ange sin insats !!!!!! FORTSÄTT HÄRIFRÅN !!!!!!!!!
         while True:
-            satsaPengar = int(input(f"Ange din insats (max {pengar}kr) > "))
+            satsaPengar = int(input(f"Ange din insats (max {pengar}kr) > ")) # 
             if satsaPengar.isdigit() and 0 < int(satsaPengar) <= pengar:
                 satsaPengar = int(satsaPengar)
                 break
