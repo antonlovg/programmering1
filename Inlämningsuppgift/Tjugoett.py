@@ -6,10 +6,10 @@
 
 import random # Importar modulen som heter random (tidigare använt i lektion 3) som gör att vi kan ta fram slumpmässiga kort.
 
-while True:
+# Startinsant
+pengar = int(500)
 
-    # Startinsant
-    pengar = int(500)
+while True:
 
     # Kollar så man har kvar pengar att spela med
     while pengar > 0:
@@ -86,3 +86,6 @@ while True:
 
     print("Du har förlorat alla dina pengar, tack för att du spelat!")
     exit()
+
+# ATT FIXA: Snygga till texten, behöver t ex inte skriva ut datorns kort om man överskrider sitt värde
+# Lägga till bättre UI - kanske ta med ASCII?
