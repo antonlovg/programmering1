@@ -27,24 +27,24 @@ while True:
 
         # Spelaren ska ange sin insats !!!!!! FORTSÄTT HÄRIFRÅN !!!!!!!!!
         while True:
-            satsaPengar = int(input(f"Ange din insats (max {pengar}kr) > ")) # 
-            if satsaPengar.isdigit() and 0 < int(satsaPengar) <= pengar:
-                satsaPengar = int(satsaPengar)
+            satsaPengar = input(f"Ange din insats (max {pengar}kr) > ") # Ber spelaren att ange en insats
+            if satsaPengar.isdigit() and 0 <= int(satsaPengar) <= pengar: # Kollar så att spelaren angett en siffra samt så spelaren faktiskt har den summan att använda samt så man inte angett 0 eller lägre.
+                satsaPengar = int(satsaPengar) # Gör om det till ett heltal
                 break
             else:
-                print("Denna")
+                print(f"Du har angett en felaktig summa, vänligen ange en summa mellan 0 och {pengar}")
 
-            # Eftersom spelaren ska ha två kort innan den får bestämma om den vill dra mer kort så måste vi tilldela den det:
-            spelareHand.append(kortlek.pop()) # Append används för att lägga till ett värde i en lista men vi vill bara ta ett nummer från kortlek-listan
-            spelareHand.append(kortlek.pop()) # och samtidigt ta bort det kortet från listan och då passar pop() bra då den tar det sista värdet och 
-                                              # lägger in det i den nya listan istället. Vi gör detta två gånger så spelare får två kort.
+        # Eftersom spelaren ska ha två kort innan den får bestämma om den vill dra mer kort så måste vi tilldela den det:
+        spelareHand.append(kortlek.pop()) # Append används för att lägga till ett värde i en lista men vi vill bara ta ett nummer från kortlek-listan
+        spelareHand.append(kortlek.pop()) # och samtidigt ta bort det kortet från listan och då passar pop() bra då den tar det sista värdet och 
+                                            # lägger in det i den nya listan istället. Vi gör detta två gånger så spelare får två kort.
 
         # Nu ska vi göra själva loopen för att låta spelaren ta fram lite kort
         while True:
             # Spelaren ska först få två kort i handen:
             spelareSumma = int(sum(spelareHand)) # För att spelaren ska veta sin totala poäng behöver vi veta den totala summan som kortena är värda, det gör vi med funktionen sum som summerar alla värden i en lista
             # Vi vill nu printa vad spelaren fick:
-            print(f"Du fick korten: {spelareHand}, poäng: {spelareSumma}")
+            print(f"Du har korten: {spelareHand}, poäng: {spelareSumma}")
             # En if-sats som kollar om spelarens summa gick över 21 och därmed förlorat
             if spelareSumma > 21: 
                 print (f"Din hand är värd {spelareSumma} och överskred 21, tyvärr så har du förlorat!")
@@ -52,18 +52,18 @@ while True:
             # Else if-sats som kollar om spelarens summa är exakt 21 och därmed inte behöver dra mer kort.
             elif spelareSumma == 21:
                 print("Blackjack! Du har 21 poäng nu!")
-
-            # Om värdet är under 21 så får man frågan om man vill dra ett till kort
-            tillKort = input("Vill du dra ett till kort (ja/nej) > ").lower() # .lower() i slutet så oavsett hur användaren skriver ja (tex Ja, JA, jA) så sparar vi det med lowercase för att matcha vår if-sats
-            # Nu kollar vi med en if-sats ifall spelaren vill ha ett nytt kort eller inte
-            if tillKort == "ja": # Svar ja
-                nyttKort = kortlek.pop() # Ny variable för att lägga till kort så vi kan skriva ut vilket kort spelaren fick
-                spelareHand.append(nyttKort) # 
-                print(f"Du fick kort {nyttKort}!")
-            elif tillKort == "nej": # Svar nej
-                break
-            else: # SKrivit fel svar
-                print("Du behöver ange antingen ja eller nej > ")
+            else:
+                # Om värdet är under 21 så får man frågan om man vill dra ett till kort
+                tillKort = input("Vill du dra ett till kort (ja/nej) > ").lower() # .lower() i slutet så oavsett hur användaren skriver ja (tex Ja, JA, jA) så sparar vi det med lowercase för att matcha vår if-sats
+                # Nu kollar vi med en if-sats ifall spelaren vill ha ett nytt kort eller inte
+                if tillKort == "ja": # Svar ja
+                    nyttKort = kortlek.pop() # Ny variable för att lägga till kort så vi kan skriva ut vilket kort spelaren fick
+                    spelareHand.append(nyttKort) # 
+                    print(f"Du fick kort {nyttKort}!")
+                elif tillKort == "nej": # Svar nej
+                    break
+                else: # SKrivit fel svar
+                    print("Du behöver ange antingen ja eller nej > ")
 
         # Denna loop gör så datorn drar ett kort sålänge den har en totalsumma under 17
         while sum(datorHand) < 17:
@@ -74,9 +74,15 @@ while True:
 
         if spelareSumma > 21: # Om spelare gick över summan 21 så har den förlorat
             print(f"Du gick över 21 (du fick {spelareSumma}) och därmer vinner datorn!")
+            pengar = pengar - satsaPengar
         elif datorSumma > 21 or spelareSumma > datorSumma: # Om datorn gick över 21 eller om spelaren hade högre värde än datorn så vinner spelaren
             print(f"Grattis du fick {spelareSumma} medans datorn fick {datorSumma}, du vann!")
+            pengar = pengar + satsaPengar
         elif spelareSumma == datorSumma: # Om spelaren har exakt samma värde som datorn blir det oavgjort
             print(f"Oavgjort, ni båda fick {spelareSumma}")
         else: # Om datorn fick ett högre värde än spelaren förlorar man 
-            print(f"Du fick {spelareSumma} och datorn fick {datorSumma}, tyvärr har du förlorat dina pengar.")
+            print(f"Du fick {spelareSumma} och datorn fick {datorSumma}, tyvärr har du förlorat din insats.")
+            pengar = pengar - satsaPengar
+
+    print("Du har förlorat alla dina pengar, tack för att du spelat!")
+    exit()
