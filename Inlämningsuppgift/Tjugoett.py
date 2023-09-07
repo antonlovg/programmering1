@@ -6,10 +6,10 @@
 
 import random # Importar modulen som heter random (tidigare använt i lektion 3) som gör att vi kan ta fram slumpmässiga kort.
 
-while True:
+# Startinsant
+pengar = int(500)
 
-    # Startinsant
-    pengar = int(500)
+while True:
 
     # Kollar så man har kvar pengar att spela med
     while pengar > 0:
@@ -28,16 +28,25 @@ while True:
         # Spelaren ska ange sin insats !!!!!! FORTSÄTT HÄRIFRÅN !!!!!!!!!
         while True:
             satsaPengar = input(f"Ange din insats (max {pengar}kr) > ") # Ber spelaren att ange en insats
-            if satsaPengar.isdigit() and 0 <= int(satsaPengar) <= pengar: # Kollar så att spelaren angett en siffra samt så spelaren faktiskt har den summan att använda samt så man inte angett 0 eller lägre.
-                satsaPengar = int(satsaPengar) # Gör om det till ett heltal
+            
+            # Kollar så värdet spelaren angav är ett heltal, inte noll eller lägre samt inte angett en summa spelaren ej har
+            try:
+                satsaPengar = int(satsaPengar)
+                satsaPengar != 0
                 break
-            else:
+            except:
                 print(f"Du har angett en felaktig summa, vänligen ange en summa mellan 0 och {pengar}")
+            # 
+            #if satsaPengar.isdigit() and 0 <= int(satsaPengar) <= pengar: # Kollar så att spelaren angett en siffra samt så spelaren faktiskt har den summan att använda samt så man inte angett 0 eller lägre.
+            #    satsaPengar = int(satsaPengar) # Gör om det till ett heltal
+            #    break
+            #else:
+            #    print(f"Du har angett en felaktig summa, vänligen ange en summa mellan 0 och {pengar}")
 
         # Eftersom spelaren ska ha två kort innan den får bestämma om den vill dra mer kort så måste vi tilldela den det:
-        spelareHand.append(kortlek.pop()) # Append används för att lägga till ett värde i en lista men vi vill bara ta ett nummer från kortlek-listan
-        spelareHand.append(kortlek.pop()) # och samtidigt ta bort det kortet från listan och då passar pop() bra då den tar det sista värdet och 
-                                            # lägger in det i den nya listan istället. Vi gör detta två gånger så spelare får två kort.
+        # Append används för att lägga till ett värde i en lista men vi vill bara ta ett nummer från kortlek-listan
+        # och samtidigt ta bort det kortet från listan och då passar pop() bra då den tar det sista värdet och lägger in det i den nya listan istället.
+        spelareHand.append(kortlek.pop()) 
 
         # Nu ska vi göra själva loopen för att låta spelaren ta fram lite kort
         while True:
@@ -86,3 +95,6 @@ while True:
 
     print("Du har förlorat alla dina pengar, tack för att du spelat!")
     exit()
+
+# ATT FIXA: Snygga till texten, behöver t ex inte skriva ut datorns kort om man överskrider sitt värde
+# Lägga till bättre UI - kanske ta med ASCII?
