@@ -2,44 +2,52 @@
 # Repo: https://github.com/antonlovg/nackademin-demo/
 # Syftet med spelet är att komma närmst 21 men inte över, spelaren med högst valör i handen vinner alternativt lika om man har samma valörer oavsett vilka kort man har.
 # Ess räknas som 1 eller 14
-# Spelaren startar med 500kr
+# Spelaren startar med 500kr om inget tidigare saldo finns
 # Lycka till !
 
+# Hämtar moduler som inte laddas som standard i pythons "bibliotek", tex random som vi använde oss av i lektion 3 och json i lektion 5.
 import json
 import os
 import random
 
+# Kommer använda samma width så sätter den till en variabel
 ui_width = 30
 
 # Startinsats
+# Tilldelar redan nu värdet till startpengar då vi kommer använda den senare i koden
 startpengar = int(500)
-stats = []
 
-# Skapar en fil om den inte finns annars hämtar den info
+# Skapar filer om de inte finns annars hämtar den info från dessa
+# Denna hämtar saldot som vi sparar som en int
 if os.path.isfile("Inlämningsuppgift/saldo_v2.json"):
     with open("Inlämningsuppgift/saldo_v2.json", "r") as f:
-        saldo = json.load(f)
+        saldo = json.load(f) # Hämtar saldot och lägger in värdet i variabel saldo
 else:
-    saldo = startpengar
+    saldo = startpengar # Finns inget saldo att hämta ger vi den startpengar
 
+# Denna hämtar alla vinster/förluster/oavgjort som vi sparat i en lista
 if os.path.isfile("Inlämningsuppgift/stats_v2.json"):
     try:
         with open("Inlämningsuppgift/stats_v2.json", "r") as f:
-            stats = json.load(f)
+            stats = json.load(f) # Hämtar värdet från stats_v2 och tilldelar det till stats
 
+    # Felhantering ifall det är nåt fel med json-filen så tilldelar vi stats en tom lista istället för att krascha programmet
     except json.JSONDecodeError:
         stats = []
 else:
-    stats = []
+    stats = [] # Finns inget stats-värde sen tidigare så får vi skapa ett
 
+# Detta är början på alla val samt spelets uppbyggnad!
 while True:
-    # Rensar terminalen, nt = windows och posix = liux/mac
+
+    # Denna kod rensar terminalen, nt = windows och posix = liux/mac
+    # Kommer användas flera gånger för att göra det lättare att använda programmet
     if os.name == "nt":
         os.system("cls")
     elif os.name == "posix":
         os.system("clear")
 
-    # UI
+    # UI - Menyvalet som är "startpunkten" för prgrammet
     print(".:  TJUGOETT  :.".center(ui_width))
     print("*" * ui_width)
     print("Gjord av Anton Lövgren".center(ui_width))
@@ -53,27 +61,40 @@ while True:
     print("| 3 |\tStats")
     print("| 4 |\tSpara och avsluta")
     print("-" * ui_width)
-
+    
+    # Användaren får göra sitt första val
     val = input("> ")
     print("-" * ui_width)
+    
+    # Val 1 - Spela
     if val == "1":
-        if saldo > 0 and saldo != 0: 
+        if saldo > 0 and saldo != 0: # Kollar om det finns pengar kvar att använda, annars hoppar den över denna del
+            
+            # Denna while-loop kollar om användaren vill använda tidigare saldo eller börja från nytt
             while True:
+
                 if os.name == "nt":
                     os.system("cls")
                 elif os.name == "posix":
                     os.system("clear")
+
                 print(".:  TJUGOETT  :.".center(ui_width))
                 print("*" * ui_width)
                 print("Gjord av Anton Lövgren".center(ui_width))
                 print("*" * ui_width)
                 print(f"| Saldo: {saldo}")
                 print("-" * ui_width)
+
+                # Sätter .lower() i slutet för att undvika problem om användaren skriver CONTINUE eller Continue
+                # Kommer göra det på flera ställen när det är ett val/input
                 val_fortsätt = input(f"Vill du börja om från 500kr eller\nfortsätta med ditt tidigare saldo\nsom just nu är {saldo}kr?\n(continue/restart) > ").lower()
                 print("-" * ui_width)
+                # Vi hoppar in i if-satsen om användaren valt continue och då möter vi break som slänger ut oss ur while-loopen (men bara den som kollar saldo)
                 if val_fortsätt == "continue":
                     input(f"Du valde att fortsätta, tryck enter for att gå vidare...")
                     break
+                # Else-if om man väljer restart, har även en extra check ifall användaren är 100% säker på att den vill starta från startpengar (500kr)
+                # Samma sak också, .lower() så användaren inte behöver tänka på hur den skriver
                 elif val_fortsätt == "restart":
                     riktigt_val_fortsätt = input("Är du helt säker att du vill starta om? (j/n) > ").lower()
                     if riktigt_val_fortsätt == "j":
@@ -83,18 +104,19 @@ while True:
                     elif riktigt_val_fortsätt == "n":
                         input(f"Du har valt att ångra dig, du behåller ditt saldo på {saldo}kr")
                         break
+                    # Dessa två else är om användaren skrivit fel, då hoppar vi tillbaka till starten av denna saldo-while-loop
                     else:
-                        input("1Ange ett riktigt val, tryck enter för att fortsätta...")
+                        input("Ange ett riktigt val, tryck enter för att fortsätta...")
                 else:
-                    input("2Du angav inte ett korrekt val, tryck på enter för att försöka igen...")
+                    input("Du angav inte ett korrekt val, tryck på enter för att försöka igen...")
 
-        elif saldo < 0:
+        elif saldo < 0: # Finns inga pengar får användaren en startsumma direkt utan att behöva göra val
             saldo = startpengar
             input("Du får nu 500kr att spela för, lycka till!\nTryck enter för att fortsätta...")
         
-        kort = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-        kortlek = kort * 4
-        random.shuffle(kortlek)
+        kort = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]  # Detta är alla värden som vi har i en kortlek. Vi vill att 1 (ess) ska kunna bli 14 men ENDAST om man inte går över 21 och detta kollar vi med en if-sats senare.
+        kortlek = kort * 4 # Detta gör vi eftersom varje valör finns med fyra exemplar dvs 52 kort totalt i en kortlek.
+        random.shuffle(kortlek)  # Precis som vi skulle blanda korten för hand så gör vi detta med shuffle, nu ligger listan i en slumpmässig ordning med fyra st exemplar av varje valör
 
         spelare_hand = []
         dator_hand = []
