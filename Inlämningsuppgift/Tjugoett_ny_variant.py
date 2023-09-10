@@ -15,9 +15,15 @@ if os.path.isfile("Inlämningsuppgift/saldo_v2.json"):
 else:
     saldo = startpengar
 
-if not os.path.isfile("Inlämningsuppgift/stats_v2.json"):
-    with open("Inlämningsuppgift/stats_v2.json", "w+") as f:
-        stats = f.write(json.dumps(stats))
+if os.path.isfile("Inlämningsuppgift/stats_v2.json"):
+    try:
+        with open("Inlämningsuppgift/stats_v2.json", "r") as f:
+            stats = json.load(f)
+
+    except json.JSONDecodeError:
+        stats = []
+else:
+    stats = []
 
 while True:
     # Rensar terminalen, nt = windows och posix = liux/mac
@@ -37,7 +43,8 @@ while True:
     print("-" * ui_width)
     print("| 1 |\tSpela")
     print("| 2 |\tRegler")
-    print("| 3 |\tSpara och avsluta")
+    print("| 3 |\tStats")
+    print("| 4 |\tSpara och avsluta")
     print("-" * ui_width)
 
     val = input("> ")
@@ -164,31 +171,42 @@ while True:
         if spelare_summa > 21:
             print(f"Du gick över 21 (du fick {spelare_summa} och därmed vinner datorn!)")
             saldo = saldo - satsa_pengar
+            stats.append("Vinst")
         elif dator_summa > 21 or spelare_summa > dator_summa:
             print(f"Grattis du fick {spelare_summa} medans datorn fick {dator_summa}, du vann!")
             saldo = saldo + satsa_pengar
+            stats.append("Vinst")
         elif spelare_summa == dator_summa:
             print(f"Oavgjort, ni båda fick {spelare_summa}")
+            stats.append("Oavgjort")
         else:
             print(f"Du fick {spelare_summa} och datorn fick {dator_summa}, tyvärr har du förlorat!")
             saldo = saldo - satsa_pengar
             stats.append("Förlust")
         
-        with open("Inlämningsuppgift/saldo_v2.json", "r") as f:
-            saldo = json.load(f)
+        with open("Inlämningsuppgift/saldo_v2.json", "w+") as f:
+            json.dump(saldo, f)
         
-        köra_igen = input("")
+        with open("Inlämningsuppgift/stats_v2.json", "w+") as f:
+            json.dump(stats, f)
+        
+        köra_igen = input(" ")
 
-    elif val == "2":
+    elif val == "2": # Regler , läs in från fil
         print("val 2")
-    elif val == "3":
+    elif val == "3": # Stats
         print("Val 3")
+    elif val == "4": # Spara o avsluta
+        print("Val 4")
     else:
-        print("Fel tecken")
-    input("yo test")
+        input("ERROR: Du har angett fel tecken,\ntryck enter för att försöka igen...")
+    
+input("yo test")
     
 
 
-    input("Test")
+input("Test")
 
-#Förlorat = Förlust
+#Förlorat = förlust
+#Vinst = vinst
+#Oavgjort = oavgjort
