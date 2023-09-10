@@ -118,6 +118,7 @@ while True:
         kortlek = kort * 4 # Detta gör vi eftersom varje valör finns med fyra exemplar dvs 52 kort totalt i en kortlek.
         random.shuffle(kortlek)  # Precis som vi skulle blanda korten för hand så gör vi detta med shuffle, nu ligger listan i en slumpmässig ordning med fyra st exemplar av varje valör
 
+        # Tomma listor med användarns och datorns händer
         spelare_hand = []
         dator_hand = []
         
