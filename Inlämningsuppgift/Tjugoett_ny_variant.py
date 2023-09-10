@@ -1,3 +1,10 @@
+# Spelet Tjugoett gjord av Anton Lövgren
+# Repo: https://github.com/antonlovg/nackademin-demo/
+# Syftet med spelet är att komma närmst 21 men inte över, spelaren med högst valör i handen vinner alternativt lika om man har samma valörer oavsett vilka kort man har.
+# Ess räknas som 1 eller 14
+# Spelaren startar med 500kr
+# Lycka till !
+
 import json
 import os
 import random
@@ -37,7 +44,7 @@ while True:
     print("*" * ui_width)
     print("Gjord av Anton Lövgren".center(ui_width))
     print("*" * ui_width)
-    print("| Har du inget saldo sen tidigare\n| så får du 500kr att\n| spela med.")
+    print("| Har du inget saldo sen tidigare\n| så får du 500kr att spela med.")
     print("-" * ui_width)
     print(f"| Saldo: {saldo}")
     print("-" * ui_width)
@@ -195,11 +202,59 @@ while True:
     elif val == "2": # Regler , läs in från fil
         print("val 2")
     elif val == "3": # Stats
-        print("Val 3")
+        if os.name == "nt":
+            os.system("cls")
+        elif os.name == "posix":
+            os.system("clear")
+
+        print(".:  TJUGOETT  :.".center(ui_width))
+        print("*" * ui_width)
+        print("Gjord av Anton Lövgren".center(ui_width))
+        print("*" * ui_width)
+        print("  STATS:  ".center(ui_width))
+        print("-" * ui_width)
+
+        if not stats:
+            print("| Börja spela för att se dina stats här!")
+
+        stats_resultat = {}
+
+        for resultat in stats:
+            if resultat in stats_resultat:
+                stats_resultat[resultat] += 1
+            else:
+                stats_resultat[resultat] = 1
+        for resultat, antal in stats_resultat.items():
+            print(f"| {resultat}: {antal}")
+
+        print("-" * ui_width)
+        if stats:
+            nollställa = input("Vill du nollställa stats? (j/n) > ").lower()
+            if nollställa == "j":
+                riktigt_val_nollställa = input("Är du säker på att du vill nollställa stats? (j/n)\nAll resultat kommer att försvinna > ").lower()
+                if riktigt_val_nollställa == "j":
+                    stats.clear()
+                    
+                    with open("Inlämningsuppgift/stats_v2.json", "w+") as f:
+                        json.dump(stats, f)
+                    
+                    input("Stats nollställts, tryck enter för att fortsätta...")
+                elif riktigt_val_nollställa == "n":
+                    input("Tidigare stats är kvar, inget har nollställts, enter för att fortsätta...")
+                else:
+                    input("Felaktigt val, tryck enter för att försöka igen...")
+            elif nollställa == "n":
+                input("Inget har nollställts, tryck enter för att gå tillbaka till menyn")
+            else:
+                input("ERROR: Felaktigt val, tryck enter för gå vidare...")
+        input("Tryck enter för att gå tillbaka till menyn...")
+
     elif val == "4": # Spara o avsluta
         print("Val 4")
     else:
         input("ERROR: Du har angett fel tecken,\ntryck enter för att försöka igen...")
+    
+
     
 input("yo test")
     
