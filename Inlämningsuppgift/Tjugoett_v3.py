@@ -15,6 +15,44 @@ spelare_hand = []
 dator_hand = []
 
 
+# -- KLASSER FÖR SPELET -- #
+# Class för att ta med färg och valör till kort
+class Kort:
+    def __init__(self, färg, valör):
+        self.färg = färg
+        self.valör = valör
+
+
+# Class för att hantera hela kortleken
+class Kortlek:
+    def __init__(self):
+        self.kortlek = []
+        self.skapa_kortlek()
+        self.blandar_kortlek()
+
+    def skapa_kortlek(self):
+        färger = ['Hjärter', 'Ruter', 'Spader', 'Klöver']
+        valörer = ['Ess', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Knekt', 'Dam', 'Kung']
+
+        for färg in färger:
+            for valör in valörer:
+                kort = Kort(färg, valör)
+                self.kortlek.append(kort)
+
+    def blandar_kortlek(self):
+        random.shuffle(self.kortlek)
+
+    def dra_kort(self, hand):
+        nytt_kort = self.kortlek.pop()
+        if nytt_kort.valör == 'Ess':
+            kort_valör = ui.val("Du drog ett ess, ska det vara 1 eller 14")
+            if kort_valör == '1' or kort_valör == '14':
+                nytt_kort.valör = kort_valör
+            else:
+                ui.val("Fel, du måste ange 1 eller 14")
+        hand.append(nytt_kort)
+
+
 # -- FUNKTIONER FÖR UI -- #
 def meny(nuvarande_stats=False):
     ui.clear()
@@ -47,41 +85,6 @@ def save_exit():
 
 # -- FUNKTIONER FÖR KORTSPELET -- #
 # Tar fram alla kort i en kortlek
-
-class Kort:
-    # Färg
-    def __init__(self, färg, valör):
-        self.färg = färg
-        self.valör = valör
-
-
-class Kortlek:
-    def __init__(self):
-        self.färg = ['Hjärter', 'Ruter', 'Spader', 'Klöver']
-        self.valör = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']
-
-
-def blanda_kortlek():
-    kort = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-    kortvariant = kort * 4
-    random.shuffle(kortvariant)
-    return kortvariant
-
-
-# Drar ett kort ur kortleken
-def dra_kort(hand):
-    kort = kortlek.pop()
-    hand.append(kort)
-
-
-# Hämtar kortleken, saldo och stats
-def nytt_spel():
-    kortlek = blanda_kortlek()
-    saldo = jsonData.hämta_saldo()
-    stats = jsonData.hämta_stats()
-    return kortlek, saldo, stats
-
-
 def hantera_omstart(saldo):
     if 0 < saldo != 0:
         while True:
@@ -98,6 +101,7 @@ def hantera_omstart(saldo):
                     riktigt_val_fortsätt = ui.val("Är du helt säker att du vill starta om? (j/n)").lower()
                     if riktigt_val_fortsätt == "j":
                         saldo = jsonData.startpengar
+                        jsonData.spara_saldo(saldo)
                         ui.linjer()
                         ui.val("Du har nu 500kr att använda dig av, tryck enter för att fortsätta")
                         return saldo
@@ -145,10 +149,10 @@ def kolla_resultat(saldo, satsa_pengar, stats, spelare_summa, dator_hand, kortle
         return saldo
 
     else:
-        while sum(dator_hand) < 17:
-            dator_hand.append(kortlek.pop())
+        while sum_kort_valörer(dator_hand) < 17:
+            kortlek.dra_kort(dator_hand)
 
-        dator_summa = int(sum(dator_hand))
+        dator_summa = sum_kort_valörer(dator_hand)
 
         ui.clear()
         meny()
@@ -156,9 +160,9 @@ def kolla_resultat(saldo, satsa_pengar, stats, spelare_summa, dator_hand, kortle
         ui.linjer()
 
         for n in dator_hand:
-            ui.övrigt(f"Datorn drar kort: {n}")
+            ui.övrigt(f"Datorn drar kort: {n.färg} {n.valör}")
 
-        ui.övrigt(f"Datorns kort är: {dator_hand}, poäng: {dator_summa}!")
+        ui.övrigt(f"Du har korten: {', '.join([f'{n.färg} {n.valör}' for n in spelare_hand])}, poäng: {spelare_summa}")
         ui.linjer()
 
         if dator_summa > 21 or spelare_summa > dator_summa:
@@ -168,6 +172,7 @@ def kolla_resultat(saldo, satsa_pengar, stats, spelare_summa, dator_hand, kortle
 
         elif spelare_summa == dator_summa:
             ui.övrigt(f"Ni båda fick {spelare_summa} och därmed har datorn vunnit, tyvärr!")
+            saldo = saldo - satsa_pengar
             stats.append("Förlust")
 
         else:
@@ -179,7 +184,7 @@ def kolla_resultat(saldo, satsa_pengar, stats, spelare_summa, dator_hand, kortle
 
 
 # -- FUNKTIONER FÖR VAL -- #
-# Val 1 - Spela spelet
+# Val 1 - Spela spelet (Del 1)
 def spela_spelet(satsa_pengar, kortlek, spelare_hand):
     while True:
         ui.clear()
@@ -187,8 +192,9 @@ def spela_spelet(satsa_pengar, kortlek, spelare_hand):
         ui.övrigt(f"Insats: {satsa_pengar}")
         ui.linjer()
 
-        spelare_summa = int(sum(spelare_hand))
-        ui.övrigt(f"Du har korten: {spelare_hand}, poäng: {spelare_summa}")
+        spelare_summa = sum_kort_valörer(spelare_hand)
+
+        ui.övrigt(f"Du har korten: {', '.join([f'{n.färg} {n.valör}' for n in spelare_hand])}, poäng: {spelare_summa}")
         ui.linjer()
 
         if spelare_summa > 21:
@@ -199,28 +205,39 @@ def spela_spelet(satsa_pengar, kortlek, spelare_hand):
             return spelare_summa
 
         else:
-            dra_kort = ui.val("Vill du dra ett till kort (j/n)").lower()
-            if dra_kort == "j":
-                nytt_kort = kortlek.pop()
-                spelare_hand.append(nytt_kort)
-                ui.övrigt(f"Du fick kort {nytt_kort}!")
-            elif dra_kort == "n":
+            val_dra_kort = ui.val("Vill du dra ett till kort (j/n)").lower()
+            if val_dra_kort == "j":
+                kortlek.dra_kort(spelare_hand)
+            elif val_dra_kort == "n":
                 return spelare_summa
             else:
                 ui.val("Du behöver ange j eller n, tryck enter för att försöka igen")
 
 
+def sum_kort_valörer(hand):
+    valör_till_värde = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'Knekt': 11,
+                        'Dam': 12, 'Kung': 13}
+    total_summa = 0
+
+    for kort in hand:
+        total_summa += valör_till_värde.get(kort.valör, 0)
+
+    return total_summa
+
+
+# Val 1 - Spela spelet (Del 2)
 def starta_nytt_spel():
     global saldo
     hantera_omstart(saldo)
-    kortlek = blanda_kortlek()
-    satsa_pengar = välja_insats()
 
-    # Tomma listor med användarnas och datorns händer
+    kortlek = Kortlek()
+
     spelare_hand = []
     dator_hand = []
 
-    spelare_hand.append(kortlek.pop())
+    satsa_pengar = välja_insats()
+
+    kortlek.dra_kort(spelare_hand)
 
     spelare_summa = spela_spelet(satsa_pengar, kortlek, spelare_hand)
     saldo = kolla_resultat(saldo, satsa_pengar, stats, spelare_summa, dator_hand, kortlek)
