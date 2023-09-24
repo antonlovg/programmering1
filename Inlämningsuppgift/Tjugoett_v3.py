@@ -47,6 +47,20 @@ def save_exit():
 
 # -- FUNKTIONER FÖR KORTSPELET -- #
 # Tar fram alla kort i en kortlek
+
+class Kort:
+    # Färg
+    def __init__(self, färg, valör):
+        self.färg = färg
+        self.valör = valör
+
+
+class Kortlek:
+    def __init__(self):
+        self.färg = ['Hjärter', 'Ruter', 'Spader', 'Klöver']
+        self.valör = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']
+
+
 def blanda_kortlek():
     kort = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
     kortvariant = kort * 4
@@ -163,9 +177,10 @@ def kolla_resultat(saldo, satsa_pengar, stats, spelare_summa, dator_hand, kortle
 
     return saldo
 
+
 # -- FUNKTIONER FÖR VAL -- #
 # Val 1 - Spela spelet
-def spela_spelet():
+def spela_spelet(satsa_pengar, kortlek, spelare_hand):
     while True:
         ui.clear()
         meny()
@@ -192,8 +207,36 @@ def spela_spelet():
             elif dra_kort == "n":
                 return spelare_summa
             else:
-                ui.val("Du behöver ange j eller n,\ntryck enter för att försöka igen")
+                ui.val("Du behöver ange j eller n, tryck enter för att försöka igen")
 
+
+def starta_nytt_spel():
+    global saldo
+    hantera_omstart(saldo)
+    kortlek = blanda_kortlek()
+    satsa_pengar = välja_insats()
+
+    # Tomma listor med användarnas och datorns händer
+    spelare_hand = []
+    dator_hand = []
+
+    spelare_hand.append(kortlek.pop())
+
+    spelare_summa = spela_spelet(satsa_pengar, kortlek, spelare_hand)
+    saldo = kolla_resultat(saldo, satsa_pengar, stats, spelare_summa, dator_hand, kortlek)
+
+    jsonData.spara_saldo(saldo)
+    jsonData.spara_stats(stats)
+    ui.linjer()
+    ui.val("Tack för att du spelat, tryck enter för att gå tillbaka till menyn")
+
+
+# Val 2 - Regler
+def visa_regler():
+    ui.linjer()
+    ui.övrigt(jsonData.hämta_regler())
+    ui.linjer()
+    ui.val("Tryck enter för att gå tillbaka till menyn")
 
 
 # Val 3 - Spara stats
@@ -247,27 +290,10 @@ while True:
     val = ui.val("Skriv ditt val")
 
     if val == "1":
-        hantera_omstart(saldo)
-        kortlek = blanda_kortlek()
-        satsa_pengar = välja_insats()
-
-        # Tomma listor med användarnas och datorns händer
-        spelare_hand = []
-        dator_hand = []
-
-        spelare_hand.append(kortlek.pop())
-
-        spelare_summa = spela_spelet()
-        kolla_resultat(saldo, satsa_pengar, stats, spelare_summa, dator_hand, kortlek)
-
-        jsonData.spara_saldo(saldo)
-        jsonData.spara_stats(stats)
-        ui.linjer()
-        ui.val("Tack för att du spelat, tryck enter för att gå tillbaka till menyn")
+        starta_nytt_spel()
 
     elif val == "2":
-        meny()
-        ui.övrigt("Vinn, förlora inte!")
+        visa_regler()
 
     elif val == "3":
         visa_stats()

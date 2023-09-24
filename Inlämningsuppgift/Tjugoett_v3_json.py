@@ -26,6 +26,12 @@ def hämta_stats():
     return []
 
 
+def hämta_regler():
+    with open("regler.txt") as f:
+        regler = f.read()
+        return regler
+
+
 # Funktion för att skriva till saldo.json
 def spara_saldo(text):
     with open("saldo.json", "w+") as f:

@@ -1,0 +1,11 @@
+Spelet går ut på att få kort med en total poängsumma så nära 21 som möjligt utan att överstiga det.
+Ess kan vara 1 eller 14, kungar är 13, damer 12, och knektar 11, medan nummerkort har sitt värde.
+
+En spelare är bankir och börjar med att satsa i potten. Sedan delar varje spelare, utom bankiren, ut ett kort till sig själv.
+Spelarna spelar mot bankiren en åt gången. Varje spelare satsar och får ett extra kort. Om summan av korten är 21 vinner spelaren lika mycket som insatsen.
+Går summan över 21 förlorar spelaren. Under 21 kan spelaren stanna eller ta ett extra kort.
+
+Om spelaren stannar, måste bankiren försöka slå spelaren genom att dra kort. Om bankiren går över 21 vinner spelaren.
+Annars vinner högsta poängsumman. Bankiren har oddsen på sin sida, så spelarna turas om att vara bankir för att jämna ut chanserna.
+
+Källa: https://sv.wikipedia.org/wiki/Tjugoett_(kortspel)
