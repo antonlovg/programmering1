@@ -45,7 +45,7 @@ class Kortlek:
     def dra_kort(self, hand):
         nytt_kort = self.kortlek.pop()
         if nytt_kort.valör == 'Ess':
-            kort_valör = ui.val("Du drog ett ess, ska det vara 1 eller 14")
+            kort_valör = ui.val("Du drog ett ess, ska det vara 1 eller 14?")
             if kort_valör == '1' or kort_valör == '14':
                 nytt_kort.valör = kort_valör
             else:
@@ -93,23 +93,22 @@ def hantera_omstart(saldo):
             ui.linjer()
             if val_fortsätt == "continue":
                 break
-            # Else-if om man väljer restart, har även en extra check ifall användaren är 100% säker på att den
-            # vill starta från startpengar (500kr) Samma sak också, .lower() så användaren inte behöver tänka på
-            # hur den skriver
+
             elif val_fortsätt == "restart":
                 while True:
                     riktigt_val_fortsätt = ui.val("Är du helt säker att du vill starta om? (j/n)").lower()
+
                     if riktigt_val_fortsätt == "j":
                         saldo = jsonData.startpengar
                         jsonData.spara_saldo(saldo)
                         ui.linjer()
                         ui.val("Du har nu 500kr att använda dig av, tryck enter för att fortsätta")
                         return saldo
+
                     elif riktigt_val_fortsätt == "n":
                         ui.val(f"Du har valt att ångra dig, du behåller ditt saldo på {saldo}kr")
                         return saldo
-                        # Dessa två else är om användaren skrivit fel, då hoppar vi tillbaka till starten av denna
-                        # saldo-while-loop
+
                     else:
                         ui.val("Ange ett riktigt val, tryck enter för att fortsätta")
             else:
@@ -183,6 +182,17 @@ def kolla_resultat(saldo, satsa_pengar, stats, spelare_summa, dator_hand, kortle
     return saldo
 
 
+def sum_kort_valörer(hand):
+    valör_till_värde = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'Knekt': 11,
+                        'Dam': 12, 'Kung': 13}
+    total_summa = 0
+
+    for kort in hand:
+        total_summa += valör_till_värde.get(kort.valör, 0)
+
+    return total_summa
+
+
 # -- FUNKTIONER FÖR VAL -- #
 # Val 1 - Spela spelet (Del 1)
 def spela_spelet(satsa_pengar, kortlek, spelare_hand):
@@ -212,17 +222,6 @@ def spela_spelet(satsa_pengar, kortlek, spelare_hand):
                 return spelare_summa
             else:
                 ui.val("Du behöver ange j eller n, tryck enter för att försöka igen")
-
-
-def sum_kort_valörer(hand):
-    valör_till_värde = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'Knekt': 11,
-                        'Dam': 12, 'Kung': 13}
-    total_summa = 0
-
-    for kort in hand:
-        total_summa += valör_till_värde.get(kort.valör, 0)
-
-    return total_summa
 
 
 # Val 1 - Spela spelet (Del 2)
