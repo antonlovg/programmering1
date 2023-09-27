@@ -7,7 +7,7 @@
 
 # Hämtar alla moduler vi använder oss av
 # Döper om modulen Tjogoett_v3_json för att förenkla koden
-import Tjugoett_v3_json as jsonData
+import tjugoett_json as jsonData
 import random
 import ui
 # Hämtar värdet ui_width från ui
