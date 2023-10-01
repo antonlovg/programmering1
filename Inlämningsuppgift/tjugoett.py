@@ -63,10 +63,12 @@ class Kortlek:
         # Kollar om kortet blev Ess, isåfall måste användaren avgöra om det ska vara 1 eller 14
         if nytt_kort.valör == 'Ess':
             kort_valör = ui.val("Du drog ett ess, ska det vara 1 eller 14?")
-            if kort_valör == '1' or kort_valör == '14':
-                nytt_kort.valör = kort_valör
-            else:
-                ui.val("Fel, du måste ange 1 eller 14")
+            while True:
+                if kort_valör == '1' or kort_valör == '14':
+                    nytt_kort.valör = kort_valör
+                    break
+                else:
+                    kort_valör = ui.val("Fel, du måste ange 1 eller 14")
         hand.append(nytt_kort)
 
 
@@ -93,16 +95,6 @@ def menyval():
     ui.menyval("3", "Stats")
     ui.menyval("4", "Spara och avsluta")
     ui.linjer()
-
-
-# Funktion för att spara stats & saldo när man tar detta val
-def save_exit():
-    meny()
-    jsonData.spara_stats(stats)
-    jsonData.spara_saldo(saldo)
-    ui.övrigt("Tack för att du spelat!")
-    ui.val("Vi har sparat ditt saldo och dina stats!")
-    exit()
 
 
 # -- FUNKTIONER FÖR KORTSPELET -- #
@@ -205,7 +197,7 @@ def kolla_resultat(saldo, satsa_pengar, stats, spelare_summa, dator_hand, kortle
             ui.övrigt(f"Datorn drar kort: {n.färg} {n.valör}")
 
         # Visar vilka kort spelaren har dragit
-        ui.övrigt(f"Du har korten: {', '.join([f'{n.färg} {n.valör}' for n in spelare_hand])}, poäng: {spelare_summa}")
+        # ui.övrigt(f"Du har korten: {', '.join([f'{n.färg} {n.valör}' for n in spelare_hand])}, poäng: {spelare_summa}")
         ui.linjer()
 
         # Resultaten för alla scenarion där vi appendar Vinst eller Förlust beroende på resultat:
@@ -253,7 +245,7 @@ def starta_nytt_spel():
     global saldo
 
     # Hämtar funktionen hantera_omstart
-    hantera_omstart(saldo)
+    saldo = hantera_omstart(saldo)
 
     # Skapar ny kortlek via class vi gjorde tidigare
     kortlek = Kortlek()
@@ -304,7 +296,8 @@ def spela_spelet(satsa_pengar, kortlek, spelare_hand):
 
         # Avbryter loopen då 21 är det högsta man kan ha
         elif spelare_summa == 21:
-            ui.övrigt("Grattis! Du har 21 poäng nu!")
+            ui.övrigt("Grattis! Du har 21 poäng nu som är det högsta du kan ha!")
+            ui.val("Tryck enter för att fortsätta")
             return spelare_summa
 
         # Kollar om användaren vill ha nytt kort, avbryter loopen om användaren ej vill
@@ -355,7 +348,8 @@ def visa_stats():
 
         if nollställa == "j":
             # Kollar om användaren är 100% säker på att den vill nollställa
-            riktigt_val_nollställa = ui.val("Är du säker på att du vill nollställa stats? (j/n). All resultat kommer att försvinna").lower()
+            riktigt_val_nollställa = ui.val(
+                "Är du säker på att du vill nollställa stats? (j/n). All resultat kommer att försvinna").lower()
 
             if riktigt_val_nollställa == "j":
                 # Rensar listan
@@ -376,6 +370,16 @@ def visa_stats():
 
         else:
             ui.val("ERROR: Felaktigt val, tryck enter för gå vidare")
+
+
+# Val 4 - Spara stats & saldo samt stänga spelet
+def save_exit():
+    meny()
+    jsonData.spara_stats(stats)
+    jsonData.spara_saldo(saldo)
+    ui.övrigt("Tack för att du spelat!")
+    ui.val("Vi har sparat ditt saldo och dina stats!")
+    exit()
 
 
 # -- PROGRAMMET -- #

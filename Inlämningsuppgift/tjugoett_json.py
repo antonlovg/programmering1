@@ -1,8 +1,8 @@
 import json
 import os
 
-startpengar = int(500)
-saldo = []
+startpengar = 500
+saldo = 500
 
 
 # -- FUNKTIONER FÖR JSON -- #
