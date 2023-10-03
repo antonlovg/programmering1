@@ -28,7 +28,7 @@ def hämta_stats():
 
 # Funktion för att hämta text av regler
 def hämta_regler():
-    with open("regler.txt") as f:
+    with open("regler.txt", "r", encoding="utf-8") as f:
         regler = f.read()
         return regler
 

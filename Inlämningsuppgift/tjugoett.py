@@ -1,12 +1,12 @@
 # Spelet Tjugoett gjord av Anton Lövgren Repo: https://github.com/antonlovg/nackademin-demo/ Syftet med spelet är att
 # komma närmst 21 men inte över, spelaren med högst valör i handen vinner, blir det lika så vinner datorn oavsett
-# vilka kort man har. Ess räknas som 1 eller 14 och spelaren kan själv bestämma vad värdet ska vara på denna.
+# vilka kort man har. Ess räknas som 1 eller 14 beroende på om summan går över 21 eller inte när man drar Ess.
 # Spelaren startar med 500kr om inget tidigare saldo finns.
 # All stats och saldo från tidigare spelsession du spelet sparas i json-filer.
 # Lycka till !
 
 # Hämtar alla moduler vi använder oss av
-# Döper om modulen Tjogoett_v3_json för att förenkla koden
+# Döper om modulen tjugoett_json för att förenkla koden
 import tjugoett_json as jsonData
 import random
 import ui
@@ -60,15 +60,6 @@ class Kortlek:
     # Funktion för att dra ett kort från kortleken så vi kan spela spelt
     def dra_kort(self, hand):
         nytt_kort = self.kortlek.pop()
-        # Kollar om kortet blev Ess, isåfall måste användaren avgöra om det ska vara 1 eller 14
-        if nytt_kort.valör == 'Ess':
-            kort_valör = ui.val("Du drog ett ess, ska det vara 1 eller 14?")
-            while True:
-                if kort_valör == '1' or kort_valör == '14':
-                    nytt_kort.valör = kort_valör
-                    break
-                else:
-                    kort_valör = ui.val("Fel, du måste ange 1 eller 14")
         hand.append(nytt_kort)
 
 
@@ -77,23 +68,23 @@ class Kortlek:
 def meny(nuvarande_stats=False):
     ui.clear()
     ui.linjer()
-    ui.title("TJUGOETT", "Anton Lövgren")
+    ui.title("TJUGOETT", "av Anton Lövgren")
     ui.linjer()
     # Är nuvarande_stats inte satt till True så skriver vi inte ut stats
     if not nuvarande_stats:
-        ui.övrigt(f"Saldo: {saldo}")
+        ui.övrigt(f"Saldo: {saldo:<{20}}|")
     # Är den True (se # Val 3) så byter vi ut Saldo till Stats
     if nuvarande_stats:
-        ui.övrigt("Stats:".center(ui_width))
+        ui.övrigt("Stats:".center(26) + "|".rjust(2))
     ui.linjer()
 
 
 # Skriver ut menyvalen
 def menyval():
-    ui.menyval("1", "Spela")
-    ui.menyval("2", "Regler")
-    ui.menyval("3", "Stats")
-    ui.menyval("4", "Spara och avsluta")
+    ui.menyval("1", "Spela" + "|".rjust(17))
+    ui.menyval("2", "Regler" + "|".rjust(16))
+    ui.menyval("3", "Stats" + "|".rjust(17))
+    ui.menyval("4", "Spara och avsluta" + "|".rjust(5))
     ui.linjer()
 
 
@@ -103,8 +94,9 @@ def hantera_omstart(saldo):
     # Går bara in i loopen om saldot inte är 0
     if 0 < saldo != 0:
         while True:
+            ui.linjer()
             val_fortsätt = ui.val(
-                f"Vill du börja om från 500kr eller fortsätta med ditt tidigare saldo som just nu är {saldo}kr? (fortsätt/omstart)").lower()
+                f"Vill du börja om från 500kr\n| eller fortsätta med ditt\n| tidigare saldo som just nu\n| är: {saldo}kr?\n| fortsätt/omstart").lower()
             ui.linjer()
 
             # Avbryter loopen direkt om användaren ej vill göra en omstart av saldo
@@ -167,7 +159,7 @@ def välja_insats():
             ui.val("Ange ett heltal, tryck enter för att försöka igen")
 
 
-# Grunden av spelet
+# Grunden av spelet där vi jämför resultat
 def kolla_resultat(saldo, satsa_pengar, stats, spelare_summa, dator_hand, kortlek):
     # Har användaren dragit över 21 så är det förloust automatiskt
     if spelare_summa > 21:
@@ -189,15 +181,12 @@ def kolla_resultat(saldo, satsa_pengar, stats, spelare_summa, dator_hand, kortle
 
         ui.clear()
         meny()
-        ui.övrigt(f"Insats: {satsa_pengar}")
+        ui.övrigt(f"Insats: {satsa_pengar:<{20}}")
         ui.linjer()
 
         # Skriver ut vilka kort som datorn dragit
         for n in dator_hand:
             ui.övrigt(f"Datorn drar kort: {n.färg} {n.valör}")
-
-        # Visar vilka kort spelaren har dragit
-        # ui.övrigt(f"Du har korten: {', '.join([f'{n.färg} {n.valör}' for n in spelare_hand])}, poäng: {spelare_summa}")
         ui.linjer()
 
         # Resultaten för alla scenarion där vi appendar Vinst eller Förlust beroende på resultat:
@@ -224,18 +213,36 @@ def kolla_resultat(saldo, satsa_pengar, stats, spelare_summa, dator_hand, kortle
 
 # Funktion för att beräkna summan av korten man har
 def sum_kort_valörer(hand):
-    # Skapar dictionary för att tilldela alla kort ett värde (Ess beräknas direkt när det dras då användaren får välja)
+    # Skapar dictionary för att tilldela alla kort ett värde (Ess beräknas direkt när det dras)
     # Detta görs då t.ex. Dam endast är en sträng och spelet ej vet vad det är värt
     valör_till_värde = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'Knekt': 11,
                         'Dam': 12, 'Kung': 13}
+
+    # Sätter variablar för att hantera Ess och totala summan
     total_summa = 0
 
-    # Går igenom varje kort
+    # Går igenom varje kort i handen
     for kort in hand:
-        total_summa += valör_till_värde.get(kort.valör, 0)
 
+        # Hämtar valören
+        valör = kort.valör
+
+        # Om Ess dras
+        if valör == 'Ess':
+            # Ess blir 14 om summan ej kommer överskrida 21
+            if total_summa + 14 <= 21:
+                total_summa += 14
+            # Ess blir annars 1
+            else:
+                total_summa += 1
+
+        # Annat värde än Ess
+        else:
+            # Läger till värdet av valören in i total_summa
+            total_summa += valör_till_värde.get(kort.valör, 0)
+
+    # Skickar tillbaka totala summan
     return total_summa
-
 
 # -- FUNKTIONER FÖR VAL -- #
 # Val 1 - Spela spelet (Del 1)
@@ -279,7 +286,7 @@ def spela_spelet(satsa_pengar, kortlek, spelare_hand):
     while True:
         ui.clear()
         meny()
-        ui.övrigt(f"Insats: {satsa_pengar}")
+        ui.övrigt(f"Insats: {satsa_pengar:<{20}}")
         ui.linjer()
 
         # Beräknar spelarens summa och tilldelar den
@@ -324,9 +331,11 @@ def visa_stats():
     # Hämtar andra varianten av meny-utseendet (Stats = True)
     meny(True)
 
-    # Inga stats finns
+    # Om inga stats finns
     if not stats:
-        ui.övrigt("Börja spela för att se dina stats här!")
+        ui.övrigt("Börja spela för att se     |\n| dina stats här!            |")
+        ui.linjer()
+        ui.val("För att fortsätta, tryck enter")
 
     # Sätter en tom dictionary för att beräkna/lagra resultaten
     stats_resultat = {}

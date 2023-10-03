@@ -11,8 +11,8 @@ def linjer():
 
 # Skapar title
 def title(text1, text2):
-    print(".:".ljust(5), text1.center(20), ":.".rjust(4))
-    print(".:".ljust(5), text2.center(20), ":.".rjust(4))
+    print("|".ljust(5), text1.center(20), "|".rjust(3))
+    print("|".ljust(5), text2.center(20), "|".rjust(3))
 
 
 # Skapar valmöjligheter
